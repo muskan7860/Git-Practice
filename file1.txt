@@ -3,3 +3,6 @@ Below are the git commands which you learn today:
 1.git status
 2.git add
 3.git branch
+4.git branch -M main 
+5.git remote -v
+6.git init-> git branch -M main-> git add .-> gitcommit -m "messgae"-> git push origin main
