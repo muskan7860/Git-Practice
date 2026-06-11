@@ -287,3 +287,124 @@ If commit is on a shared branch others have pulled
 → revert is the only safe option. Always.
 
 ---
+### Q6. You edited login.js and made a mess. Nothing staged or committed yet. You want to throw away all edits and go back to last commit. What do you do?
+
+I use git restore.
+
+```bash
+git restore login.js
+```
+
+Git takes login.js exactly as it was in my last commit
+and overwrites my current edited version. All my messy
+edits are thrown away permanently.
+
+Before running restore I always check what I am about
+to lose:
+
+```bash
+# See exactly what will be thrown away
+git diff login.js
+# Red lines = what will be deleted
+
+# Then restore if I am sure
+git restore login.js
+```
+
+After restore:
+
+```bash
+git status
+# login.js does not appear — file is clean
+```
+
+Important warning — git restore on working directory
+is permanent. There is no reflog for this. Once restored,
+edits are gone forever. Always run git diff first.
+
+git restore also unstages files:
+
+```bash
+# Accidentally staged a file, want to unstage it
+git restore --staged login.js
+# File removed from staging area
+# Edits still in working directory — not lost
+```
+
+git restore is the modern replacement for:
+
+```
+git restore login.js           → git checkout -- login.js
+git restore --staged login.js  → git reset HEAD login.js
+```
+
+---
+
+### Q7. Your build process created hundreds of temp files and log files. Git does not know about them. You want to delete all of them and get back to a clean state. What do you do?
+
+I use git clean.
+
+git clean permanently deletes untracked files — files
+that were never added to Git with git add. Git does not
+know about them at all.
+
+The most important rule — always run dry run first:
+
+```bash
+# Step 1 — dry run, preview what will be deleted
+# Nothing is deleted yet — just showing you
+git clean -n
+# Output:
+# Would remove temp.log
+# Would remove debug.txt
+# Would remove build/output.js
+```
+
+After reviewing the list and confirming these are safe
+to delete:
+
+```bash
+# Step 2 — actually delete untracked files
+# -f = force, Git requires this as a safety measure
+git clean -f
+# Output:
+# Removing temp.log
+# Removing debug.txt
+# Removing build/output.js
+```
+
+If there are also untracked folders to delete:
+
+```bash
+# -f = force, -d = include untracked directories
+git clean -fd
+```
+
+If build artifacts ignored by .gitignore also need
+to be deleted:
+
+```bash
+# -x = also delete files ignored by .gitignore
+git clean -fdx
+```
+
+Verify everything is clean:
+
+```bash
+git status
+# nothing to commit, working tree clean
+# No untracked files anywhere
+```
+
+Critical warning — git clean permanently deletes files
+that were never committed. There is absolutely no
+recovery. No reflog. No trash bin. No undo.
+
+```
+Always run git clean -n first.
+Never skip the dry run step.
+The 5 seconds it takes to preview
+can save hours of lost work.
+```
+
+---
